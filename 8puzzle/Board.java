@@ -1,12 +1,13 @@
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Board {
 
     private final int n;
-    private int[][] tileState;
+    private final int[][] tileState;
+    private final int hamm;
+    private final int man;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -14,8 +15,10 @@ public class Board {
         n = tiles[0].length;
         tileState = new int[n][n];
         for (int row = 0; row < n; row++) {
-            tileState[row] = Arrays.copyOf(tiles[row], tiles[row].length);
+            tileState[row] = tiles[row].clone();
         }
+        hamm = calcHamming();
+        man = calcManhattan();
     }
 
     // string representation of this board
@@ -39,15 +42,15 @@ public class Board {
     }
 
     // number of tiles out of place
-    public int hamming() {
+    private int calcHamming() {
         int outOfPlace = 0;
 
-        int goal = 1;
+        int target = 1;
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 if (row == n - 1 && col == n - 1) break;
-                if (!(tileState[row][col] == goal)) outOfPlace++;
-                goal++;
+                if (!(tileState[row][col] == target)) outOfPlace++;
+                target++;
             }
         }
 
@@ -55,18 +58,17 @@ public class Board {
     }
 
     // sum of Manhattan distances between tiles and goal
-    public int manhattan() {
+    private int calcManhattan() {
         int distance = 0;
-        int goal = 1;
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 int tile = tileState[row][col];
-                if (tile == 0) break;
-                else if (!(tile == goal)) {
-                    
-                    distance += goal;
+
+                if (!(tile == 0)) {
+                    int expectedRow = (tile - 1) / n;
+                    int expectedCol = (tile - 1) % n;
+                    distance += Math.abs(row - expectedRow) + Math.abs(col - expectedCol);
                 }
-                goal++;
             }
         }
         return distance;
@@ -78,18 +80,26 @@ public class Board {
         int[][] goalTiles = new int[n][n];
         goalTiles[n - 1][n - 1] = 0;
 
-        int goal = 1;
+        int target = 1;
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 if (row == n - 1 && col == n - 1) break;
-                goalTiles[row][col] = goal;
-                goal++;
+                goalTiles[row][col] = target;
+                target++;
             }
         }
 
         Board goalBoard = new Board(goalTiles);
         if (this.equals(goalBoard)) return true;
         return false;
+    }
+
+    public int hamming() {
+        return hamm;
+    }
+
+    public int manhattan() {
+        return man;
     }
 
     // does this board equal y?
@@ -168,11 +178,28 @@ public class Board {
         return neighbourChecker(zeroRow, zeroCol);
     }
 
-
     // a board that is obtained by exchanging any pair of tiles
-    //public Board twin() {
+    public Board twin() {
 
-    //}
+        int[][] twinState = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            twinState[i] = tileState[i].clone();
+        }
+
+        // exchange the first 2 tiles of the 1st row, or 2nd row
+        if (twinState[0][0] != 0 && twinState[0][1] != 0) {
+            int temp = twinState[0][0];
+            twinState[0][0] = twinState[0][1];
+            twinState[0][1] = temp;
+        }
+        else {
+            int temp = twinState[1][0];
+            twinState[1][0] = twinState[1][1];
+            twinState[1][1] = temp;
+        }
+
+        return new Board(twinState);
+    }
 
     // unit testing (not graded)
     public static void main(String[] args) {
@@ -229,6 +256,11 @@ public class Board {
         for (Board elem : testBoard.neighbors()) {
             StdOut.println(elem);
         }
+        StdOut.println();
         StdOut.println(testBoard);
+
+        for (int i = 0; i < 5; i++) {
+            StdOut.println(testBoard.twin());
+        }
     }
 }
