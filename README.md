@@ -22,6 +22,6 @@ Seam Carving - 85%
 
 Baseball Elimination - 100%
 
-Boggle - N/A
+Boggle - 86%
 
 Burrows-Wheeler - N/A
