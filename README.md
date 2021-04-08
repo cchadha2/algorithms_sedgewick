@@ -24,4 +24,4 @@ Baseball Elimination - 100%
 
 Boggle - 86%
 
-Burrows-Wheeler - N/A
+Burrows-Wheeler - 96%
